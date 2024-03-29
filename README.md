@@ -15,7 +15,7 @@ The project consists to design the database based on employees file, ingest the 
 
 1. Design the E-R from the database and create the structure based on the files attached. 
 2. Ingest the data from the centos server to the postgres database. 
-3. At least the ‘read’ request must be supported for the API 
+3. At least the ‘read’ request must be supported for the API. 
 4. The server where the API is going to be deployed must have access only to the postgres database. And the centos server must have access only to the postgres database as well.
 
 ## Development
@@ -43,3 +43,16 @@ The project consists to design the database based on employees file, ingest the 
   - fact_employees_load.py
 
 This application will be located in the CentOS container and will run to load the data into the PostgreSQL database when the container is executed.
+
+3. Reading database with API: I develop an python api with Flask for read employees information  
+#### The logic:
+- Create a Flask app.
+- Read from database with a query information about employees from fact_employees table.
+- Make available the data from the url 127.0.0.1:8088
+
+#### The APP path:  
+- api/
+  - get_employees.py
+
+### The result
+![Employees table](Documentation/employees_table.png)  
