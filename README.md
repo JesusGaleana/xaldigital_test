@@ -59,7 +59,7 @@ This application will be located in the CentOS container and will run to load th
 
 4. The server API and CentOS server must have access only to the postgres database as well. 
 
-#### Docker
+#### Docker
 The provided docker-compose file was modified to meet the project requirements.  
 The centos container was modified with command and environment segments:
 ```yaml
