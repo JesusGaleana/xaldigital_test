@@ -21,3 +21,25 @@ The project consists to design the database based on employees file, ingest the 
 ## Development
 1. E-R Model: The model was generated from the csv file where split the data into 3 dimension tables (dim_person, dim_company, dim_department) and 1 fact table (fact_employees)  
 ![Modelo Entidad-Relación de Employees](Documentation/diagrama_er_employees.png)  
+
+2. Ingest the data from the centos: I developed an app for ingest data from CSV file to postgresql.  
+
+#### The logic:
+- Read from CSV file the information about person, company and department
+- Transformation and validation of information about state values
+- Validation in the database - that the data to be loaded is not found in the tables
+- Upload the data into tables
+
+#### The APP path:  
+- app/
+  - data/
+    - sample_data.csv
+  - utils/
+    - file_manager.py
+    - postgres_db.py
+  - dim_company_load.py
+  - dim_department_load.py
+  - dim_person_load.py
+  - fact_employees_load.py
+
+This application will be located in the CentOS container and will run to load the data into the PostgreSQL database when the container is executed.
