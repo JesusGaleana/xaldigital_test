@@ -56,3 +56,51 @@ This application will be located in the CentOS container and will run to load th
 
 ### The result
 ![Employees table](Documentation/employees_table.png)  
+
+4. The server API and CentOS server must have access only to the postgres database as well. 
+
+#### Docker
+The provided docker-compose file was modified to meet the project requirements.  
+The centos container was modified with command and environment segments:
+```yaml
+  centos:
+    image: centos:latest
+    command: /bin/bash -c "sed -i -e 's|mirrorlist=|#mirrorlist=|g' /etc/yum.repos.d/CentOS-* && sed -i -e 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && yum update -y && yum install -y python3 && yum clean all && pip3 install --upgrade pip && pip install pandas && pip install psycopg2-binary && cd app/ && python3 dim_company_load.py && python3 dim_person_load.py && python3 dim_department_load.py && python3 fact_employees_load.py"
+    environment:
+      - HOST_DB=db
+      - PORT_DB=5432
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=example
+    volumes:
+      - ./app/:/app/
+    networks:
+      - postgres
+```
+
+The Python container was added to host the consumption API there:
+```yaml
+  python_app:
+    image: python:3.10.0
+    command: /bin/bash -c "pip install flask && pip install psycopg2-binary && cd api/ && flask --app get_employees run --host=0.0.0.0"
+    volumes:
+      - ./api/:/api/
+    environment:
+      - FLASK_APP=get_employees.py
+      - HOST_DB=db
+      - PORT_DB=5432
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=example
+    ports:
+      - 8088:5000
+    networks:
+      - postgres
+```
+
+#### SQL  
+A SQL folder was added containing an initialization script which generates the tables of the model to store employee data.
+- init.sql
+#### Requeriments
+The requeriments file contains the python libraries necesaries to execute the app ingest and api request (note: the containers will install them automatically)
+- requeriments.txt
