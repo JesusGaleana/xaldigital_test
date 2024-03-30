@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     # Getting only department data
     data_department = data[config_params["department_info"]["cols_from_file"]].drop_duplicates()
-    columns = config_params["department_info"]["cols_join"]
+    columns = config_params["department_info"]["cols_join"].copy()
     data_department = data_department.rename(columns=dict(zip(data_department.columns, columns)))
 
     # Get connection from Database
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     connection.connect()
 
     # Validate if the data exist in the table
-    columns = config_params["department_info"]["cols_join"]
+    columns = config_params["department_info"]["cols_join"].copy()
     app_validator = AppDataValidator(connection=connection)
     df_new_data = app_validator.validate_db_table(data_department, config_params["department_info"]["read_query"], columns)
 
