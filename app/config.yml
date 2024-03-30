@@ -62,6 +62,10 @@ person_info:
 
 employee_info:
   table: fact_employees
+  source_cols:
+    - person_id
+    - company_id
+    - department_id
   target_cols:
     - employee_id
     - company_id
