@@ -16,7 +16,7 @@ if __name__ == "__main__":
     data = file_manager.read_file()
 
     # Getting only person data
-    data_company = data[[config_params["person_info"]["cols_from_file"]]].drop_duplicates()
+    data_people = data[config_params["person_info"]["cols_from_file"]].drop_duplicates()
 
     # Get connection from Database
     connection = PostgreSQLConnection(
@@ -29,11 +29,9 @@ if __name__ == "__main__":
     connection.connect()
 
     # Validate if the data exist in the table
-    columns = config_params["person_info"]["cols_from_file"]
-    columns.insert(0,'id')
-    join_cols = config_params["person_info"]["cols_join"]
+    columns = config_params["person_info"]["cols_join"]
     app_validator = AppDataValidator(connection=connection)
-    df_new_data = app_validator.validate_db_table(data_company_filtered, config_params["person_info"]["read_query"], columns, join_cols)
+    df_new_data = app_validator.validate_db_table(data_people, config_params["person_info"]["read_query"], columns)
 
     # Create a list of rows to be inserted and declarate the columns where the data to be inserted
     if not df_new_data.empty:

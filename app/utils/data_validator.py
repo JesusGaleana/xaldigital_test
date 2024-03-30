@@ -4,7 +4,7 @@ class AppDataValidator:
     def __init__(self, connection):
         self.connection = connection
 
-    def validate_db_table(self, df_data, query, columns, join_cols):
+    def validate_db_table(self, df_data, query, columns):
         """Validates data from a DataFrame against a database table.
 
         Reads the database table using the provided query and converts the result into a DataFrame.
@@ -25,6 +25,8 @@ class AppDataValidator:
         # Read the database table with the query and put the data into Dataframe
         result_query = self.connection.execute_query(query)
         data = []
+        join_cols = columns.copy()
+        columns.insert(0,'id')
         if result_query:
             for row in result_query:
                 data.append(row)
@@ -33,7 +35,7 @@ class AppDataValidator:
 
         # Join the df_data(from csv file) with the df(from database) and validate if the rows exist into database table
         if not df.empty:
-            df = df[[join_cols]]
+            df = df[join_cols]
             merged_df = pd.merge(df_data, df, on=join_cols, how='left', indicator=True)
 
             # Filter the data that are missing in database table and return the dataframe.

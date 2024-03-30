@@ -15,13 +15,13 @@ if __name__ == "__main__":
     data = file_manager.read_file()
 
     # Getting only company data
-    data_company = data[[config_params["company_info"]["cols_from_file"]]].drop_duplicates()
+    data_company = data[config_params["company_info"]["cols_from_file"]].drop_duplicates()
 
     # Validation about state column (This column permit only letters and 2 characters)
     data_company["state_valid"] = [len(state) == 2 for state in data_company["state"]]
     data_company["state_valid_letter"] = [state.isalpha() for state in data_company["state"]]
     data_company_filtered = data_company[(data_company['state_valid']) & (data_company['state_valid_letter'])]
-    data_company_filtered = data_company_filtered[[config_params["company_info"]["cols_from_file"]]]
+    data_company_filtered = data_company_filtered[config_params["company_info"]["cols_from_file"]]
 
     # Get connection from Database
     connection = PostgreSQLConnection(
@@ -34,11 +34,9 @@ if __name__ == "__main__":
     connection.connect()
 
     # Validate if the data exist in the table
-    columns = config_params["company_info"]["cols_from_file"]
-    columns.insert(0,'id')
-    join_cols = config_params["company_info"]["cols_join"]
+    columns = config_params["company_info"]["cols_join"]
     app_validator = AppDataValidator(connection=connection)
-    df_new_data = app_validator.validate_db_table(data_company_filtered, config_params["company_info"]["read_query"], columns, join_cols)
+    df_new_data = app_validator.validate_db_table(data_company_filtered, config_params["company_info"]["read_query"], columns)
 
     # Create a list of rows to be inserted and declarate the columns where the data to be inserted
     if not df_new_data.empty:

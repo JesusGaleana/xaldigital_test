@@ -5,7 +5,7 @@ class YamlDataLoader:
         self.file_path = file_path
 
 
-    def read_yaml_config_file(self):
+    def read_yaml_file(self):
         """Reads a YAML configuration file and returns the data as a Python dictionary.
 
         Args:

@@ -16,7 +16,7 @@ if __name__ == "__main__":
     data = file_manager.read_file()
 
     # Getting only department data
-    data_department = data[[config_params["department_info"]["cols_from_file"]]].drop_duplicates()
+    data_department = data[config_params["department_info"]["cols_from_file"]].drop_duplicates()
     columns = config_params["department_info"]["cols_join"]
     data_department = data_department.rename(columns=dict(zip(data_department.columns, columns)))
 
@@ -31,16 +31,14 @@ if __name__ == "__main__":
     connection.connect()
 
     # Validate if the data exist in the table
-    columns = config_params["department_info"]["cols_from_file"]
-    columns.insert(0,'id')
-    join_cols = config_params["department_info"]["cols_join"]
+    columns = config_params["department_info"]["cols_join"]
     app_validator = AppDataValidator(connection=connection)
-    df_new_data = app_validator.validate_db_table(data_company_filtered, config_params["department_info"]["read_query"], columns, join_cols)
+    df_new_data = app_validator.validate_db_table(data_department, config_params["department_info"]["read_query"], columns)
 
     # Create a list of rows to be inserted and declarate the columns where the data to be inserted
     if not df_new_data.empty:
         values = df_new_data.values.tolist()
         columns = ', '.join([str(col) for col in config_params["department_info"]["cols_join"]])
-        connection.insert_query(table=config_params["company_info"]["table"], columns=columns, values=values)
+        connection.insert_query(table=config_params["department_info"]["table"], columns=columns, values=values)
 
     connection.disconnect()
