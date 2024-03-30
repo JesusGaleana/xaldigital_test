@@ -2,6 +2,7 @@ import os
 import pandas as pd
 from utils.files_manager import FileManager
 from utils.postgres_db import PostgreSQLConnection
+from utils.read_config_file import YamlDataLoader
 
 
 def getting_data_db(query, columns):
@@ -16,8 +17,12 @@ def getting_data_db(query, columns):
 
 
 if __name__ == "__main__":
+    # Initializes the config dictionary
+    yaml_data_loader = YamlDataLoader(file_path="config.yml")
+    config_params = yaml_data_loader.read_yaml_file()
+
     # Initializes Tthe FileManager object to read the file
-    file_manager = FileManager(file_type="csv", file_path="data/sample_data.csv")
+    file_manager = FileManager(file_type="csv", file_path=config_params["file_path"])
     df_data = file_manager.read_file()
     df_data.rename(columns={'department': 'department_name'}, inplace=True)
 
@@ -32,41 +37,35 @@ if __name__ == "__main__":
     connection.connect()
 
     # Getting data from dim person
-    query = "SELECT * FROM dim_person;"
-    columns = ["person_id", "first_name", "last_name", "phone1", "phone2", "email"]
-    df = getting_data_db(query, columns)
+    df = getting_data_db(query=config_params["person_info"]["read_query"], columns=config_params["person_info"]["target_cols"])
 
     # Merge Person ID with the CSV file data
-    df = df[["person_id", "first_name", "last_name"]]
-    merged_df = pd.merge(df_data, df, on=["first_name", "last_name"], how="left", indicator=True)
+    df = df[[config_params["person_info"]["merge_cols"]]]
+    merged_df = pd.merge(df_data, df, on=config_params["person_info"]["cols_join"], how="left", indicator=True)
     del merged_df["_merge"]
 
     # Getting data from dim company
-    query = "SELECT * FROM dim_company;"
-    columns = ["company_id", "company_name", "address", "city", "state", "zip"]
-    df = getting_data_db(query, columns)
+    df = getting_data_db(query=config_params["company_info"]["read_query"], columns=config_params["company_info"]["target_cols"])
 
     # Merge Company ID with the CSV file data
-    df = df[["company_id", "company_name"]]
-    merged_df = pd.merge(merged_df, df, on=["company_name"], how="left", indicator=True)
+    df = df[[config_params["company_info"]["merge_cols"]]]
+    merged_df = pd.merge(df_data, df, on=config_params["company_info"]["cols_join"], how="left", indicator=True)
     del merged_df["_merge"]
 
     # Getting data from dim department
-    query = "SELECT * FROM dim_department;"
-    columns = ["department_id", "department_name"]
-    df = getting_data_db(query, columns)
+    df = getting_data_db(query=config_params["department_info"]["read_query"], columns=config_params["department_info"]["target_cols"])
 
     # Merge Department ID with the CSV file data
-    df = df[["department_id", "department_name"]]
-    merged_df = pd.merge(merged_df, df, on=["department_name"], how="left", indicator=True)
+    df = df[[config_params["department_info"]["merge_cols"]]]
+    merged_df = pd.merge(df_data, df, on=config_params["department_info"]["cols_join"], how="left", indicator=True)
     del merged_df["_merge"]
 
     # Getting just the ID columns for load into fact employees table
     if not merged_df.empty:
-        merged_df = merged_df[["person_id", "company_id", "department_id"]]
-        values = merged_df.values.tolist()
-        columns = "employee_id, company_id, department_id"
-        connection.insert_query(table="fact_employees", columns=columns, values=values)
+        merged_df = merged_df[[config_params["employee_info"]["target_cols"]]]
+        values = df_new_data.values.tolist()
+        columns = ', '.join([str(col) for col in config_params["employee_info"]["target_cols"]])
+        connection.insert_query(table=config_params["employee_info"]["table"], columns=columns, values=values)
 
     # Close the conection to the database
     connection.disconnect()

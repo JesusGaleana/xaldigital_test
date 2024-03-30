@@ -1,0 +1,68 @@
+file_path: data/sample_data.csv
+
+company_info:
+  table: dim_company
+  read_query: "SELECT * FROM dim_company;"
+  cols_from_file:
+    - company_name
+    - address
+    - city
+    - state
+    - zip
+  target_cols:
+    - company_id
+    - company_name
+    - address
+    - city
+    - state
+    - zip
+  cols_join:
+    - company_name
+  merge_cols:
+    - company_id
+    - company_name
+
+department_info:
+  table: dim_department
+  read_query: "SELECT * FROM dim_department;"
+  cols_from_file:
+    - department
+  target_cols:
+    - department_id
+    - department_name
+  cols_join:
+    - department_name
+  merge_cols:
+    - department_id
+    - department_name
+
+person_info:
+  table: dim_person
+  read_query: "SELECT * FROM dim_person;"
+  cols_from_file:
+    - first_name
+    - last_name
+    - phone1
+    - phone2
+    - email
+  target_cols:
+    - person_id
+    - first_name
+    - last_name
+    - phone1
+    - phone2
+    - email
+  cols_join:
+    - first_name
+    - last_name
+  merge_cols:
+    - person_id
+    - first_name
+    - last_name
+
+employee_info:
+  table: fact_employees
+  target_cols:
+    - employee_id
+    - company_id
+    - department_id
